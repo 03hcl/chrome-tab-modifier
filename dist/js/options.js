@@ -1,6 +1,6 @@
-var app = angular.module('TabModifier', ['ngRoute', 'ngAnimate', 'ngAria', 'ngMaterial', 'angular-google-analytics', 'ui.tree']);
+var app = angular.module('TabModifier', ['ngRoute', 'ngAnimate', 'ngAria', 'ngMaterial', 'ui.tree']);
 
-app.config(['$locationProvider', '$routeProvider', '$compileProvider', '$mdIconProvider', '$mdThemingProvider', 'AnalyticsProvider', function ($locationProvider, $routeProvider, $compileProvider, $mdIconProvider, $mdThemingProvider, AnalyticsProvider) {
+app.config(['$locationProvider', '$routeProvider', '$compileProvider', '$mdIconProvider', '$mdThemingProvider', function ($locationProvider, $routeProvider, $compileProvider, $mdIconProvider, $mdThemingProvider) {
 
     $locationProvider.hashPrefix('');
 
@@ -51,12 +51,7 @@ app.config(['$locationProvider', '$routeProvider', '$compileProvider', '$mdIconP
         .warnPalette('red', {
             default: 'A700'
         });
-    
-    // Analytics config
-    AnalyticsProvider.setAccount('UA-27524593-7');
-    AnalyticsProvider.setHybridMobileSupport(true);
-    AnalyticsProvider.setDomainName('none');
-    
+
     var routes = {
         '/settings': {
             templateUrl: '/html/settings.html',
@@ -80,7 +75,7 @@ app.config(['$locationProvider', '$routeProvider', '$compileProvider', '$mdIconP
     
 }]);
 
-app.run(['$rootScope', '$location', 'Analytics', function ($rootScope, $location, Analytics) {
+app.run(['$rootScope', '$location', function ($rootScope, $location) {
     
     $rootScope.location = $location;
     
@@ -90,25 +85,21 @@ app.controller('HelpController', function () {
     
 });
 
-app.controller('MainController', ['$scope', '$mdSidenav', '$q', 'Analytics', function ($scope, $mdSidenav, $q, Analytics) {
-    
+app.controller('MainController', ['$scope', '$mdSidenav', '$q', function ($scope, $mdSidenav, $q) {
+
     $scope.toggleSideNav = function () {
         $mdSidenav('aside-left').toggle();
-        
-        Analytics.trackEvent('sidenav', 'toggle');
     };
-    
+
     $scope.closeSideNav = function () {
         if ($mdSidenav('aside-left').isOpen() === true) {
             $mdSidenav('aside-left').close();
-            
-            Analytics.trackEvent('sidenav', 'close');
         }
     };
     
 }]);
 
-app.controller('SettingsController', ['$scope', '$mdDialog', '$mdToast', '$location', 'TabModifier', 'Analytics', function ($scope, $mdDialog, $mdToast, $location, TabModifier, Analytics) {
+app.controller('SettingsController', ['$scope', '$mdDialog', '$mdToast', '$location', 'TabModifier', function ($scope, $mdDialog, $mdToast, $location, TabModifier) {
 
     var tab_modifier = new TabModifier();
 
@@ -162,21 +153,15 @@ app.controller('SettingsController', ['$scope', '$mdDialog', '$mdToast', '$locat
                     .textContent('Your tab rules have been successfully imported')
                     .position('top right')
             );
-
-            Analytics.trackEvent('tab-rules', 'import-success');
         } else {
             var message;
 
             switch (result) {
                 case 'INVALID_JSON_FORMAT':
                     message = 'Invalid JSON file. Please check it on jsonlint.com.';
-
-                    Analytics.trackEvent('tab-rules', 'import-error-json');
                     break;
                 case 'INVALID_SETTINGS':
                     message = 'Invalid settings file. Is this file comes from Tab Modifier?';
-
-                    Analytics.trackEvent('tab-rules', 'import-error-format');
                     break;
             }
             $mdDialog.hide();
@@ -211,14 +196,12 @@ app.controller('SettingsController', ['$scope', '$mdDialog', '$mdToast', '$locat
                     .textContent('Your tab rules have been successfully deleted')
                     .position('top right')
             );
-
-            Analytics.trackEvent('tab-rules', 'delete-all');
         });
     };
 
 }]);
 
-app.controller('TabRulesController', ['$scope', '$routeParams', '$http', '$mdDialog', '$mdMedia', '$mdToast', 'Rule', 'TabModifier', 'Analytics', function ($scope, $routeParams, $http, $mdDialog, $mdMedia, $mdToast, Rule, TabModifier, Analytics) {
+app.controller('TabRulesController', ['$scope', '$routeParams', '$http', '$mdDialog', '$mdMedia', '$mdToast', 'Rule', 'TabModifier', function ($scope, $routeParams, $http, $mdDialog, $mdMedia, $mdToast, Rule, TabModifier) {
     
     var tab_modifier = new TabModifier(), icon_list = [];
     
@@ -283,8 +266,6 @@ app.controller('TabRulesController', ['$scope', '$routeParams', '$http', '$mdDia
                     .textContent('Your rule has been successfully saved')
                     .position('top right')
             );
-        }, function () {
-            Analytics.trackEvent('tab-rules', 'close-form');
         });
     };
     
@@ -351,11 +332,7 @@ app.controller('TabRulesController', ['$scope', '$routeParams', '$http', '$mdDia
             .cancel('Close');
         
         $mdDialog.show(confirm).then(function () {
-            Analytics.trackEvent('greetings-dialog', 'close');
-            
             $scope.showForm();
-        }, function () {
-            Analytics.trackEvent('greetings-dialog', 'show-form');
         });
     }
     
