@@ -1,7 +1,9 @@
 var app = angular.module('TabModifier', ['ngRoute', 'ngAnimate', 'ngAria', 'ngMaterial', 'angular-google-analytics', 'ui.tree']);
 
-app.config(['$routeProvider', '$compileProvider', '$mdIconProvider', '$mdThemingProvider', 'AnalyticsProvider', function ($routeProvider, $compileProvider, $mdIconProvider, $mdThemingProvider, AnalyticsProvider) {
-    
+app.config(['$locationProvider', '$routeProvider', '$compileProvider', '$mdIconProvider', '$mdThemingProvider', 'AnalyticsProvider', function ($locationProvider, $routeProvider, $compileProvider, $mdIconProvider, $mdThemingProvider, AnalyticsProvider) {
+
+    $locationProvider.hashPrefix('');
+
     // Allow "chrome-extension" protocol
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|chrome-extension|file|blob):/);
     $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|chrome-extension|file|blob):|data:image\//);
