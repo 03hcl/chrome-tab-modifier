@@ -1,6 +1,6 @@
-var title_changed_by_me = false;
-var icon_changed_by_me = false;
-var page_changed_by_me = false;
+let title_changed = false;
+let icon_changed = false;
+let page_changed = false;
 
 function fetch_rule(tab_modifier) {
   for (const rule of tab_modifier.rules) {
@@ -17,7 +17,7 @@ function fetch_rule(tab_modifier) {
 }
 
 function get_text_by_selector(selector) {
-  let parent = document.querySelector(selector);
+  const parent = document.querySelector(selector);
   if (parent === null) { return ''; }
   for (node of parent.childNodes) {
     let value = '';
@@ -67,15 +67,15 @@ function process_title(rule, current_url, current_title) {
 
 function apply_title_observer(rule) {
   const title_callback = (mutations, observer) => {
-    if (title_changed_by_me === true) {
-      title_changed_by_me = false;
+    if (title_changed === true) {
+      title_changed = false;
       return;
     }
     if (rule.tab.title === null) { return; }
     const before = document.title;
     const after = process_title(rule, location.href, document.title);
     if (before !== after) {
-      title_changed_by_me = true;
+      title_changed = true;
       document.title = after;
     }
   };
@@ -91,7 +91,7 @@ function process_icon(new_icon) {
   const nodes = document.querySelectorAll('head link[rel*="icon"]');
   for (const node of nodes) { node.parentNode.removeChild(node); }
   // Create new favicon
-  let link = document.createElement('link');
+  const link = document.createElement('link');
   link.type = 'image/x-icon';
   link.rel  = 'icon';
   // Set preconfigured or custom (http|https|data) icon
@@ -103,13 +103,13 @@ function process_icon(new_icon) {
 function apply_icon_observer(rule) {
   const change_icon = (node) => {
     if (node.type !== 'image/x-icon') { return; }
-    icon_changed_by_me = true;
+    icon_changed = true;
     process_icon(rule.tab.icon);
   };
 
   const icon_callback = (mutations, observer) => {
-    if (icon_changed_by_me === true) {
-      icon_changed_by_me = false;
+    if (icon_changed === true) {
+      icon_changed = false;
       return;
     }
     // Handle favicon changes,  Detect added or removed favicon
@@ -177,11 +177,11 @@ function process_page(rule) {
 
 function apply_page_observer(rule) {
   const page_callback = (mutations, observer) => {
-    if (page_changed_by_me === true) {
-      page_changed_by_me = false;
+    if (page_changed === true) {
+      page_changed = false;
       return;
     }
-    page_changed_by_me = true;
+    page_changed = true;
     process_page(rule);
   };
   const page_observer = new window.WebKitMutationObserver(page_callback);
