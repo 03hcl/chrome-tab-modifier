@@ -30,18 +30,18 @@ function get_text_by_selector(selector) {
   return '';
 }
 
-function update_title(title, tag, value) {
-  if (value === '') { return title; }
-  return title.replace(tag, value);
-};
-
 function handle_selector_matcher(title) {
   const matches = title.match(/\{([^}]+)}/g);
   if (matches === null) { return title; }
   for (match of matches) {
-    const selector = match.substring(1, match.length - 1);
-    const text = get_text_by_selector(selector);
-    title = update_title(title, match, text);
+    const re = new RegExp('\{([^\{\}]+?)(:([^\{\}]+?))?\}', 'g');
+    const formatter = re.exec(match);
+    const selector = formatter[1];
+    let format = formatter[3];
+    let text = get_text_by_selector(selector);
+    if (format === undefined && text === '') { continue; }
+    else if (format !== undefined && text !== '') { text = format.replace('$', text); }
+    title = title.replace(match, text);
   }
   return title;
 }
@@ -51,7 +51,10 @@ function handle_matcher(title, matcher, current, tag_prefix) {
   try {
     matches = current.match(new RegExp(matcher), 'g');
     if (matches === null) { return title; }
-    for (const i in matches) { title = update_title(title, tag_prefix + i, matches[i]); }
+    for (const i in matches) {
+      if (matches[i] === undefined || matches[i] === '') { continue; }
+      title = title.replace(tag_prefix + i, matches[i]);
+    }
   }
   catch (e) { console.log(e); }
   return title;
