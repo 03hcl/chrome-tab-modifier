@@ -12,7 +12,9 @@
   },
   "options_page": "html/options.html",
   "action": {
-    "default_icon": "img/icon_48.png"
+    "default_icon": {
+      "48": "img/icon_48.png"
+    }
   },
   "permissions": ["tabs", "storage", "contextMenus"],
   "host_permissions": ["http://*/*", "https://*/*"],

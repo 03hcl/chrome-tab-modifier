@@ -1,11 +1,11 @@
 /*jshint esversion: 6, loopfunc: true */
 
-let options_url = chrome.extension.getURL('html/options.html');
+let options_url = chrome.runtime.getURL('html/options.html');
 
 // --------------------------------------------------------------------------------------------------------
 // Functions
 
-function openOptionsPage(hash) {
+function open_options_page(hash) {
   chrome.tabs.query({ url: options_url }, (tabs) => {
     if (tabs.length > 0) {
       chrome.tabs.update(tabs[0].id, { active: true, highlighted: true }, function (current_tab) {
@@ -16,7 +16,7 @@ function openOptionsPage(hash) {
   });
 };
 
-function getStorage(callback) {
+function get_storage(callback) {
   chrome.storage.local.get('tab_modifier', (items) => { callback(items.tab_modifier); });
 };
 
@@ -53,35 +53,35 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   }
 });
 
-chrome.browserAction.onClicked.addListener(() => { openOptionsPage(); });
+chrome.action.onClicked.addListener((tab) => { open_options_page(); });
 
 chrome.runtime.onInstalled.addListener((details) => {
   switch (details.reason) {
     case 'install':
-      openOptionsPage('install');
+      open_options_page('install');
       break;
     case 'update':
-      getStorage((tab_modifier) => {
+      get_storage((tab_modifier) => {
         if (tab_modifier === undefined || tab_modifier.settings === undefined) { return; }
         if (
           tab_modifier.settings !== undefined
           && tab_modifier.settings.enable_new_version_notification === true
           && details.previousVersion !== chrome.runtime.getManifest().version
         ) {
-          openOptionsPage('update/' + chrome.runtime.getManifest().version);
+          open_options_page('update/' + chrome.runtime.getManifest().version);
         }
       });
       break;
   }
 });
 
-chrome.contextMenus.create({ id: 'rename-tab', title: 'Rename Tab', contexts: ['all'] });
+chrome.contextMenus.create({ id: 'rename-tab', title: 'Rename Tab', contexts: ['action'] });
 
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
   if (info.menuItemId !== 'rename-tab') { return; }
   let title = prompt('Enter the new title, a Tab rule will be automatically created for you based on current URL');
 
-  getStorage((tab_modifier) => {
+  get_storage((tab_modifier) => {
     if (tab_modifier === undefined) {
       tab_modifier = { settings: { enable_new_version_notification: false }, rules: [] };
     }
